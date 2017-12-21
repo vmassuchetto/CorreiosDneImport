@@ -1,11 +1,11 @@
-# Importação do e-DNE dos Correios
+# ImportaÃ§Ã£o do e-DNE dos Correios
 
 Programa console em .NET Core para ler os arquivos da base e-DNE dos Correios e
-importá-los em banco de dados com integridade referencial.
+importÃ¡-los em banco de dados com integridade referencial.
 
-O objetivo é permitir a fácil atualização da base ao somente adicionar os arquivos
-delta à medida que eles são liberados. Quando um arquivo master for adicionado o
-banco é reiniciado.
+O objetivo Ã© permitir a fÃ¡cil atualizaÃ§Ã£o da base ao somente adicionar os arquivos
+delta Ã  medida que eles sÃ£o liberados. Quando um arquivo master for adicionado o
+banco Ã© reiniciado.
 
 ## Modo de uso
 
@@ -23,56 +23,56 @@ Coloque os arquivos do e-DNE sem alterar os nomes originais na pasta `Data`:
     eDNE_Delta_Master_1704.zip
     eDNE_Master_1611.zip
 
-Execute o programa informando a conexão com o banco de dados:
+Execute o programa informando a conexÃ£o com o banco de dados:
 
     dotnet run "Server=Servidor;Database=Banco;User Id=Usuario;Password=Senha;"
 
 ## Funcionamento
 
-A importação é incremental usando arquivos `Master` -- completos e liberados
+A importaÃ§Ã£o Ã© incremental usando arquivos `Master` -- completos e liberados
 anualmente, e `Delta` -- parciais e liberados mensalmente. Arquivos `Delta`
-possuem um indicador de operação para cada registro (`INS`, `UPD` e `DEL`).
+possuem um indicador de operaÃ§Ã£o para cada registro (`INS`, `UPD` e `DEL`).
 
-Arquivos importados são registrados em uma tabela de controle para que não
-serem lidos novamente. Descompactação do ZIP é feita em um diretório temporário
-do sistema que é apagado após a importação.
+Arquivos importados sÃ£o registrados em uma tabela de controle para que nÃ£o
+serem lidos novamente. DescompactaÃ§Ã£o do ZIP Ã© feita em um diretÃ³rio temporÃ¡rio
+do sistema que Ã© apagado apÃ³s a importaÃ§Ã£o.
 
-Independente da quantidade de arquivos na pasta `Data`, o programa irá
-construir a ordem correta a partir da última importação `Master` presente ou
-que já foi importada anteriormente.
+Independente da quantidade de arquivos na pasta `Data`, o programa irÃ¡
+construir a ordem correta a partir da Ãºltima importaÃ§Ã£o `Master` presente ou
+que jÃ¡ foi importada anteriormente.
 
-Arquivos que não estejam em sequência não serão importados. Registros já
-importados são ignorados.
+Arquivos que nÃ£o estejam em sequÃªncia nÃ£o serÃ£o importados. Registros jÃ¡
+importados sÃ£o ignorados.
 
-As tabelas são [mapeadas](https://github.com/vmassuchetto/CorreiosDneImport/blob/master/CorreiosDneImport/DneImport.php#L44-L62)
+As tabelas sÃ£o [mapeadas](https://github.com/vmassuchetto/CorreiosDneImport/blob/master/CorreiosDneImport/DneImport.cs#L44-L62)
 da seguinte forma:
 
     LOG_LOGRADOURO -> CorreiosLogradouro
     LOG_LOCALIDADE -> CorreiosLocalidade
     LOG_FAIXA_CPC  -> CorreiosFaixaCpc
 
-Os campos são convertidos para CamelCase:
+Os campos sÃ£o convertidos para CamelCase:
 
     LOC_NU         -> LocNu
     UFE_SG         -> UfeSg
     LOG_NO_ABREV   -> LogNoAbrev_
 
-Execução:
+ExecuÃ§Ã£o:
 
-![Indicação de progresso da importação](Assets/Progresso.jpg)
+![IndicaÃ§Ã£o de progresso da importaÃ§Ã£o](Assets/Progresso.jpg)
 
-## Precauções
+## PrecauÃ§Ãµes
 
-A integridade de dados é desligada durante o processo de importação. Execute a
-importação em ambiente de testes para ter certeza que a sequência de deltas
-liberada pelos Correios não invalida a integridade referencial. Estes casos
-podem acontecer e lançam esta exceção ao final da importação:
+A integridade de dados Ã© desligada durante o processo de importaÃ§Ã£o. Execute a
+importaÃ§Ã£o em ambiente de testes para ter certeza que a sequÃªncia de deltas
+liberada pelos Correios nÃ£o invalida a integridade referencial. Estes casos
+podem acontecer e lanÃ§am esta exceÃ§Ã£o ao final da importaÃ§Ã£o:
 
     Unhandled Exception: System.Data.SqlClient.SqlException:
         The ALTER TABLE statement conflicted with the FOREIGN KEY constraint "FK_CorreiosVarLoc_CorreiosLocalidade".
         [...], table "dbo.CorreiosLocalidade", column 'LocNu'
 
-No caso acima, algum valor do campo `LocNu` em `CorreiosVarLoc` não
+No caso acima, algum valor do campo `LocNu` em `CorreiosVarLoc` nÃ£o
 consta em `CorreiosLocalidade`. Para encontrar este valor:
 
     SELECT vl.LocNu, l.LocNu
