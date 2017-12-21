@@ -1,12 +1,11 @@
-﻿using System;
-
-namespace CorreiosDneImport
+﻿namespace DneImport
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var m = new DneImport(args);
+            m.Run();
         }
     }
 }
