@@ -33,13 +33,13 @@ A importação é incremental usando arquivos `Master` -- completos e liberados
 anualmente, e `Delta` -- parciais e liberados mensalmente. Arquivos `Delta`
 possuem um indicador de operação para cada registro (`INS`, `UPD` e `DEL`).
 
-Arquivos importados são registrados em uma tabela de controle para que não
-serem lidos novamente. Descompactação do ZIP é feita em um diretório temporário
+Arquivos importados são registrados em uma tabela de controle para não serem
+ lidos novamente. A descompactação do ZIP é feita em um diretório temporário
 do sistema que é apagado após a importação.
 
 Independente da quantidade de arquivos na pasta `Data`, o programa irá
-construir a ordem correta a partir da última importação `Master` presente ou
-que já foi importada anteriormente.
+construir a ordem correta a partir da última importação `Master` ali presente
+ou que já foi importada anteriormente.
 
 Arquivos que não estejam em sequência não serão importados. Registros já
 importados são ignorados.
@@ -63,13 +63,15 @@ Execução:
 
 ## Precauções
 
-A integridade de dados é desligada durante o processo de importação. Execute a
-importação em ambiente de testes para ter certeza que a sequência de deltas
-liberada pelos Correios não invalida a integridade referencial. Estes casos
-podem acontecer e lançam esta exceção ao final da importação:
+A integridade referencial dos dados é desligada durante o processo de
+importação. Execute o programa a importação em ambiente de testes para ter
+certeza que a sequência de deltas liberada pelos Correios não invalida a
+integridade referencial. Estes casos podem acontecer e lançam esta exceção
+ao final da importação:
 
     Unhandled Exception: System.Data.SqlClient.SqlException:
-        The ALTER TABLE statement conflicted with the FOREIGN KEY constraint "FK_CorreiosVarLoc_CorreiosLocalidade".
+        The ALTER TABLE statement conflicted with the
+            FOREIGN KEY constraint "FK_CorreiosVarLoc_CorreiosLocalidade".
         [...], table "dbo.CorreiosLocalidade", column 'LocNu'
 
 No caso acima, algum valor do campo `LocNu` em `CorreiosVarLoc` não
